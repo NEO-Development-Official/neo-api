@@ -1,5 +1,12 @@
-const getCookie = (req, res, next) => {
-    console.log(`Retrieving API Cookie`)
+const getCookie = async (req, res, next) => {
+    if (req.headers['Token']) {
+        console.log("Yes")
+        const Cookie = req.Headers.GetValues("Token");
+        return Cookie;
+    } else {
+        console.log('No');
+        return false
+    }
 }
 
 module.exports = { getCookie }
