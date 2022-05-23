@@ -10,10 +10,10 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/xp/:id', async (req, res, next) => {
-  const authToken = await authHandler.getCookie(req, res)
-  if (authToken == false) {
-    const insufficientError = errorManager(404, 'Insufficient Authentication Token!')
-    return errorHandler(insufficientError, req, res, next);
+  const authToken = await authHandler.getCookie(req, res);
+  const authTypeCheck = await authHandler.confirmCookie(req, res, authToken);
+  if (authTypeCheck === true) {
+    res.send("Passed")
   }
 });
 
