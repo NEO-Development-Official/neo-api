@@ -21,10 +21,15 @@
   "dependencies": {
     "cookie-parser": "^1.4.6",
     "express": "^4.18.1",
+    "firebase-admin": "^10.2.0",
     "helmet": "^5.1.0",
     "http-errors": "^2.0.0",
+    "iso-639-1": "^2.1.13",
     "morgan": "^1.10.0",
-    "nodemon": "^2.0.16"
+    "noblox": "^4.8.5",
+    "noblox.js": "^4.13.1",
+    "nodemon": "^2.0.16",
+    "sourcebin_js": "^0.0.3-ignore"
   },
   "devDependencies": {
     "eslint": "^5.16.0",

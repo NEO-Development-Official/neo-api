@@ -2,7 +2,7 @@ const createError = require("http-errors");
 
 const errorHandler = (err, req, res, next) => {
   if (err.expose === true) {
-    res.status(err.status || 500).send(err);
+    res.status(err.status || 500).send(err); return
   } else {
     res.status(500).send(createError.InternalServerError());
   }
