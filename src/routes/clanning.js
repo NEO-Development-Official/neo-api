@@ -30,20 +30,36 @@ router.post('/xp/:id/increment/:num', async (req, res, next) => {
   if (authenticationResponse.authenticated === true) {
     let playerExperience = await (await httpManager.getJson(httpManager.clanningFirebase + `/guilds/${authenticationResponse.guild}/users/${req.params.id}/xp.json`)).data; if (playerExperience == null) { playerExperience = 0 }; let completeExperience = 0;
     const playerData = await noblox.getUsernameFromId(Number(req.params.id))
-    .catch(err => {const userNotFound = errorManager(404, 'NEO 330: User Not Found'); return errorHandler(userNotFound, req, res)})
+      .catch(err => { const userNotFound = errorManager(404, 'NEO 330: User Not Found'); return errorHandler(userNotFound, req, res) })
+    
+    const mathOperation = Number(req.params.num) > 0 ? '+' : '-';
+    const rawNum = Number(req.params.num) > 0 ? Number(req.params.num) : Number(req.params.num) * -1;
   
-    if (req.params.num.includes('-')) {
-      neoDatabase.ref(`guilds/${authenticationResponse.guild}/users/${req.params.id}`).update({ xp: playerExperience - Number(req.params.num.replace(/[^0-9]/g,'')) }); completeExperience = playerExperience - Number(req.params.num)
-    } else {
-      neoDatabase.ref(`guilds/${authenticationResponse.guild}/users/${req.params.id}`).update({ xp: playerExperience + Number(req.params.num) }); completeExperience = playerExperience + Number(req.params.num)
-    }
+    if (mathOperation === '+') { neoDatabase.ref(`/guilds/${authenticationResponse.guild}/users/${req.params.id}`).update({ xp: playerExperience + rawNum }); completeExperience = playerExperience + rawNum; }
+    else {neoDatabase.ref(`/guilds/${authenticationResponse.guild}/users/${req.params.id}`).update({ xp: playerExperience - rawNum }); completeExperience = playerExperience - rawNum;}
 
-    const responsePacket = {
-      id: req.params.id,
-      username: playerData,
-      increment: req.params.num,
-      xp: completeExperience
-    }; return res.send(responsePacket);
+    const responsePacket = { id: req.params.id, username: playerData, increment: mathOperation + rawNum, xp: completeExperience };
+    return res.send(responsePacket);
+  }
+});
+
+router.post('/xp/:id/set/:num', async (req, res, next) => {
+  const neoDatabase = firebaseAdmin.database();
+  const authPackage = await authHandler.checkPackage(req, res, await authHandler.getPackage(req, res));
+  const authenticationResponse = await authHandler.authenticatePackage(req, res, authPackage)
+
+  if (authenticationResponse.authenticated === true) {
+    let playerExperience = await (await httpManager.getJson(httpManager.clanningFirebase + `/guilds/${authenticationResponse.guild}/users/${req.params.id}/xp.json`)).data; if (playerExperience == null) { playerExperience = 0 }; let completeExperience = 0;
+    const playerData = await noblox.getUsernameFromId(Number(req.params.id))
+      .catch(err => { const userNotFound = errorManager(404, 'NEO 330: User Not Found'); return errorHandler(userNotFound, req, res) })
+    
+    const isNumber = isNaN(Number(req.params.num)) ? false : true;
+    if (isNumber === false) { const NaNError = errorManager(406, 'NEO 660: Not a Number'); return errorHandler(NaNError, req, res) }
+
+    neoDatabase.ref(`/guilds/${authenticationResponse.guild}/users/${req.params.id}`).update({ xp: Number(req.params.num) }); completeExperience = Number(req.params.num)
+
+    const responsePacket = { id: req.params.id, username: playerData, previousExperience: playerExperience, xp: completeExperience };
+    return res.send(responsePacket);
   }
 });
 
