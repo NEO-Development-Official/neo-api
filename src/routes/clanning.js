@@ -6,6 +6,7 @@ const router = express.Router();
 
 const authHandler = require('../middleware/authHandler')
 const httpManager = require('../server/httpManager');
+const loggingManager = require('../server/loggingManager');
 const errorHandler = require('../middleware/errorHander')
 
 router.get('/', (req, res, next) => {
@@ -16,6 +17,9 @@ router.get('/xp/:id', async (req, res, next) => {
   const authPackage = await authHandler.checkPackage(req, res, await authHandler.getPackage(req, res));
   const authenticationResponse = await authHandler.authenticatePackage(req, res, authPackage)
   if (authenticationResponse.authenticated === true) {
+    
+    console.log(await loggingManager.getLogSetting(authenticationResponse.guild))
+
     let playerExperience = await (await httpManager.getJson(httpManager.clanningFirebase + `/guilds/${authenticationResponse.guild}/users/${req.params.id}/xp.json`)).data; if (playerExperience == null) { playerExperience = 0 }
     const resPacket = { id: req.params.id, xp: playerExperience };
     res.send(resPacket)
